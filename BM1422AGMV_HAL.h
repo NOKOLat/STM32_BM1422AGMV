@@ -8,33 +8,22 @@
 #ifndef INC_BM1422AGMV_HAL_H_
 #define INC_BM1422AGMV_HAL_H_
 
-#include <cstdint>
 #include "i2c.h"
+#include "BM1422AGMV.h"
 
-class BM1422AGMV_HAL{
+class BM1422AGMV_HAL: public BM1422AGMV{
 
 	public:
 
-		enum class REGISTER: uint8_t{
+		BM1422AGMV_HAL(I2C_HandleTypeDef* I2cPin);
 
-			WIA 	= 0x0F,
-			DATA_X  = 0x10,
-			STA1    = 0x18,
-			CNTL1   = 0x1B,
-			CNTL2   = 0x1C,
-			CNTL3   = 0x1D,
-			CNTL4   = 0x5C,
-		};
-
-		BM1422AGMV_HAL(I2C_HandleTypeDef* use_i2cPin);
-
-		void write(BM1422AGMV_HAL::REGISTER, uint8_t* command, uint8_t len);
-		void read(BM1422AGMV_HAL::REGISTER, uint8_t* receive_buffer, uint8_t len);
+		void Write(BM1422AGMV::REGISTER REGADDR, uint8_t *TxBuffer, uint8_t Len);
+		void Read(BM1422AGMV::REGISTER REGADDR, uint8_t *RxBuffer, uint8_t Len);
 
 	private:
 
-		uint8_t I2C_ADDR = 0b0001110 << 1;
-		I2C_HandleTypeDef* i2c_pin;
+		uint8_t I2CADDR = 0b0001110 << 1;
+		I2C_HandleTypeDef* I2cPin;
 };
 
 #endif /* INC_BM1422AGMV_HAL_H_ */
