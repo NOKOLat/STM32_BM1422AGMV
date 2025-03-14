@@ -8,35 +8,47 @@
 #ifndef INC_BM1422AGMV_H_
 #define INC_BM1422AGMV_H_
 
-#include "BM1422AGMV_HAL.h"
+#include <cstdint>
 
-class BM1422AGMV : private BM1422AGMV_HAL{
+class BM1422AGMV{
 
 	public:
 
-		enum class mode: uint8_t{
+		enum class REGISTER: uint8_t{
 
-			scale_12bit = 0x00,
-			scale_14bit
+			WIA 	= 0x0F,
+			DATA_X  = 0x10,
+			STA1    = 0x18,
+			CNTL1   = 0x1B,
+			CNTL2   = 0x1C,
+			CNTL3   = 0x1D,
+			CNTL4   = 0x5C,
 		};
 
-		enum class output_rate: uint8_t{
+		enum class Mode: uint8_t{
 
-			rate_10hz = 0x00,
-			rate_20hz,
-			rate_100hz,
-			rate_1000hz
+			Scale12Bit = 0x00,
+			Scale14Bit,
 		};
 
-		BM1422AGMV(I2C_HandleTypeDef* i2c_pin);
+		enum class ODR: uint8_t{
 
-		uint8_t verify_connection();
-		uint8_t setting(BM1422AGMV::mode, BM1422AGMV::output_rate);
-		uint8_t get_data(int16_t mag_buffer[3]);
+			Rate10Hz = 0x00,
+			Rate20Hz,
+			Rate100Hz,
+			Rate1000Hz
+		};
+
+		uint8_t Connection();
+		uint8_t Setting(BM1422AGMV::Mode, BM1422AGMV::ODR);
+		uint8_t GetData(int16_t MagData[3]);
 
 	private:
 
-		I2C_HandleTypeDef* i2c_pin;
+		uint8_t RawData[6];
+
+		virtual void Write(BM1422AGMV::REGISTER, uint8_t* TxBuffer, uint8_t Len){}
+		virtual void Read(BM1422AGMV::REGISTER, uint8_t* RxBuffer, uint8_t Len){}
 };
 
 #endif /* INC_BM1422AGMV_H_ */
