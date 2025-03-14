@@ -13,7 +13,7 @@ i2c通信のみ対応しています
 それぞれの環境に合わせて使ってください
 
 ```cpp
-#include "BM1422AGMV.h"
+#include "BM1422AGMV_HAL.h"
 
 //使用するi2cのピンを設定
 BM1422AGMV bm(&hi2c2);
