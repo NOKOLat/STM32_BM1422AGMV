@@ -16,21 +16,23 @@ i2c通信のみ対応しています
 #include "BM1422AGMV_HAL.h"
 
 //使用するi2cのピンを設定
-BM1422AGMV bm(&hi2c2);
+BM1422AGMV_HAL bm(&hi2c1);
 
-int16_t mag_data[3] = {};
+int16_t MagData[3] = {};
 
 //1回のみ実行される部分
 void init(){
 
-	bm.verify_connection();
-	bm.setting(bm.mode::scale_14bit, bm.output_rate::rate_1000hz);
+	bm.Connection();
+	bm.Setting(bm.Mode::Scale14Bit, bm.ODR::Rate1000Hz);
 }
 
 //whileでループする部分
 void loop(){
 
-	bm.get_data(mag_data);
+	bm.GetData(MagData);
+
+	printf("%4d%4d%4d\n", MagData[0], MagData[1], MagData[2]);
 }
 ```
 
