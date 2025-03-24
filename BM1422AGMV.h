@@ -45,8 +45,6 @@ class BM1422AGMV{
 
 	private:
 
-		uint8_t RawData[6];
-
 		virtual void Write(BM1422AGMV::REGISTER, uint8_t* TxBuffer, uint8_t Len){}
 		virtual void Read(BM1422AGMV::REGISTER, uint8_t* RxBuffer, uint8_t Len){}
 };

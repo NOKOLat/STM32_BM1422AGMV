@@ -51,37 +51,86 @@ uint8_t BM1422AGMV::Connection(){
  */
 uint8_t BM1422AGMV::Setting(BM1422AGMV::Mode Mode, BM1422AGMV::ODR ODR){
 
+	//出力モードとODRの設定
+	uint8_t CNTL1_Command = 0x00;
+	uint8_t CNTL1_Mode = 0x00;
+	uint8_t CNTL1_Error = 0;
 
-	//12bitmodeでのoutput_rate(ODR)設定
-	//12bitmode 0x80 + rate（同レジスタ内）
 	if(uint8_t(Mode) == 0){
 
-		uint8_t CTNL1_Command = 0x80 + ((uint8_t)ODR << 3);
-		Write(REGISTER::CNTL1, &CTNL1_Command, 1);
+		//12BitMode
+		CNTL1_Command = 0x80 + ((uint8_t)ODR << 3);
+	}
+	else{
+
+		//14BitMode
+		CNTL1_Command = 0xC0 + ((uint8_t)ODR << 3);
 	}
 
-	//14bitmodeでのoutput_rate(ODR)設定
-	//14bitmode 0xC0 + rate（同レジスタ内）
-	if(uint8_t(Mode) == 1){
+	//値が一致するまで書き込み
+	while(CNTL1_Mode != CNTL1_Command){
 
-		uint8_t CTNL1_Command = 0xC0 + ((uint8_t)ODR << 3);
-		Write(REGISTER::CNTL1, &CTNL1_Command, 1);
+		Write(REGISTER::CNTL1, &CNTL1_Command, 1);
+		Read(REGISTER::CNTL1, &CNTL1_Mode, 1);
+
+		CNTL1_Error ++;
+		if(CNTL1_Error > 100){
+
+			return 1;
+		}
 	}
 
-	//CTNL4 リセット解除
+	//CNTL4 リセット解除
 	//0x00を連続する2つのレジスタに書き込む（リセット解除）
-	uint8_t CTNL4_Command[2] = {};
-	Write(REGISTER::CNTL4, CTNL4_Command, 2);
+	uint8_t CNTL4_Command[2] = {};
+	uint8_t CNTL4_Mode[2] = {0xff, 0xff};
+	uint8_t CNTL4_Error = 0;
 
-	//CTNL2 DataReadyの有効化
-	//0x0Cを書き込む（有効化)
-	uint8_t CTNL2_Command = 0x0C;
-	Write(REGISTER::CNTL2, &CTNL2_Command, 1);
+	while(CNTL4_Mode[0] != CNTL4_Command[0] || CNTL4_Mode[1] != CNTL4_Command[1]){
 
-	//CTNL3 　測定モードの設定
-	//0x40を書き込む（連続測定モード）
-	uint8_t CTNL3_Command = 0x40;
-	BM1422AGMV::Write(REGISTER::CNTL3, &CTNL3_Command, 1);
+		Write(REGISTER::CNTL4, CNTL4_Command, 2);
+		Read(REGISTER::CNTL4, CNTL4_Mode, 2);
+
+		CNTL4_Error ++;
+		if(CNTL4_Error > 100){
+
+			return 2;
+		}
+	}
+
+	//CNTL2 DataReadyの有効化
+	uint8_t CNTL2_Command = 0x0C;
+	uint8_t CNTL2_Mode = 0x00;
+	uint8_t CNTL2_Error = 0;
+
+	while(CNTL2_Command != CNTL2_Mode){
+
+		Write(REGISTER::CNTL2, &CNTL2_Command, 1);
+		Read(REGISTER::CNTL2, &CNTL2_Mode, 1);
+
+		CNTL2_Error ++;
+		if(CNTL2_Error > 100){
+
+			return 3;
+		}
+	}
+
+	//CNTL3 　測定モードの設定
+	uint8_t CNTL3_Command = 0x40;
+	uint8_t CNTL3_Mode = 0x00;
+	uint8_t CNTL3_Error = 0;
+
+	while(CNTL3_Command != CNTL3_Mode){
+
+		Write(REGISTER::CNTL3, &CNTL3_Command, 1);
+		Read(REGISTER::CNTL3, &CNTL3_Mode, 1);
+
+		CNTL3_Error ++;
+		if(CNTL3_Error > 100){
+
+			return 4;
+		}
+	}
 
 	return 0;
 }
@@ -96,6 +145,8 @@ uint8_t BM1422AGMV::Setting(BM1422AGMV::Mode Mode, BM1422AGMV::ODR ODR){
  */
 uint8_t BM1422AGMV::GetData(int16_t MagData[3]){
 
+	uint8_t RawData[6] = {};
+
 	//DATA_Xから6Byteを読む
 	Read(BM1422AGMV::REGISTER::DATA_X, RawData, 6);
 
@@ -109,12 +160,6 @@ uint8_t BM1422AGMV::GetData(int16_t MagData[3]){
 	MagData[0]  = (int16_t)(RawData[0] | RawData[1] << 8);
 	MagData[1]  = (int16_t)(RawData[2] | RawData[3] << 8);
 	MagData[2]  = (int16_t)(RawData[4] | RawData[5] << 8);
-
-	//バッファーのクリア
-	for(uint8_t i=0; i<6; i++){
-
-		RawData[i] = 0;
-	}
 
 	return 0;
 }
