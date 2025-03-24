@@ -54,7 +54,7 @@ rate_100hz
 rate_1000hz
 ```
 
-## get_data()について
+## GetData()について
 
 int16でx,y,zの順番に値を出力します
 
