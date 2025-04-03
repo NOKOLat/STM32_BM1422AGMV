@@ -13,7 +13,6 @@
 /* @brief 通信チェック
  *
  * WIAレジスタを読んで、値をチェックします
- *
  * 最大で100回の再試行をします
  *
  *@return uint8_t 0: 接続成功、1: 通信失敗
@@ -41,13 +40,12 @@ uint8_t BM1422AGMV::Connection(){
 /* @brief センサー設定の設定
  *
  * CNTL1~4レジスタに値を書き込みます
+ * Connectionが成功していれば失敗しないことがほとんどです
  *
- * @param Mode 12Bit、14Bit出力を選べます
- * @param ODR  出力レートを設定できます
+ * @param [in]Mode 12Bit、14Bit出力を選べます
+ * @param [in]ODR  出力レートを設定できます
  *
- *　@return uint8_t 0: 接続成功
- *
- *　Connectionが成功していれば失敗しないはずです
+ *　@return uint8_t 0: 接続成功, 1:CNTL_1 設定失敗, 2:CNTL_4 設定失敗, 3:CNTL_2 設定失敗, 4:CNTL_3 設定失敗
  */
 uint8_t BM1422AGMV::Setting(BM1422AGMV::Mode Mode, BM1422AGMV::ODR ODR){
 
@@ -138,8 +136,9 @@ uint8_t BM1422AGMV::Setting(BM1422AGMV::Mode Mode, BM1422AGMV::ODR ODR){
 /* @brief センサーデータの取得
  *
  * DATA_Xレジスタから6Byteを読み値を出力します
+ * 下位バイトがすべて0の場合はエラー判定をしています
  *
- * @param int16_t MagData データを入れる配列
+ * @param [out]int16_t MagData[3] データを入れる配列(X,Y,Zの順番）
  *
  *@return uint8_t 0: 通信成功, 1: 通信失敗
  */
