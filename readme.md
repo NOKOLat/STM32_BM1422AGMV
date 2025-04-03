@@ -14,27 +14,31 @@ i2c通信のみ対応しています
 
 ```cpp
 #include "BM1422AGMV_HAL.h"
+#include "wrapper.hpp"
+#include "usart.h"
 
 //使用するi2cのピンを設定
 BM1422AGMV_HAL bm(&hi2c1);
 
 int16_t MagData[3] = {};
 
-//1回のみ実行される部分
-void init(){
+int main(void){
 
 	bm.Connection();
 	bm.Setting(bm.Mode::Scale14Bit, bm.ODR::Rate1000Hz);
-}
 
-//whileでループする部分
-void loop(){
+	while(1){
 
 	bm.GetData(MagData);
-
-	printf("%4d%4d%4d\n", MagData[0], MagData[1], MagData[2]);
+	}
 }
+
 ```
+
+## 通信速度について
+
+データシートにFastMode(~400kbps)まで対応と書いてありますので
+それ以下の値になるようにしてください
 
 ## setting()について
 
@@ -64,7 +68,7 @@ int16型の3要素を持つ配列のポインタを渡してください
 
 ### BM1422AGMV_HAL 
 
-STM32を使った通信を定義しています
+STM32 HALライブラリのI2C通信を実装するための派生クラスです
 
 ### BM1422AGMG
 
